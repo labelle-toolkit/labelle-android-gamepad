@@ -8,5 +8,10 @@
         "build.zig",
         "build.zig.zon",
         "src",
+        // Java InputDeviceListener shim (labelle-assembler#258) for live hotplug
+        // deltas. Compiled/bundled by the consuming APK packaging step (a
+        // labelle-cli follow-up); shipped here as source so the packaging path
+        // has one canonical copy.
+        "java",
     },
 }

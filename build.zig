@@ -34,6 +34,23 @@ const std = @import("std");
 /// `addImport("android_gamepad", dep.module("android_gamepad"))`. The C TU is
 /// `#ifdef __ANDROID__`-gated, so it emits an empty object off Android.
 ///
+/// ## Live hotplug (labelle-assembler#258)
+///
+/// The C glue exposes, beyond `_init`/`_shutdown`, two extra C-ABI entry points
+/// the consumer wires into its `pollEvents`:
+///
+///   * `void labelle_android_gamepad_poll(void)` — re-enumerates the input
+///     devices and emits connect/disconnect deltas (the code-free-APK fallback;
+///     works today with no Java).
+///   * `int labelle_android_gamepad_listener_active(void)` — 1 when the Java
+///     `LabelleInputDeviceListener` shim is attached (deltas arrive live), so
+///     the caller can skip/throttle polling.
+///
+/// The shim lives at `java/com/labelle/LabelleInputDeviceListener.java`
+/// (`dep.path("java")`). Loading it needs the APK to ship a `classes.dex` and
+/// flip `android:hasCode="true"` — a labelle-cli packaging step that does not
+/// exist yet, so until it lands the poll path is the live delta source.
+///
 /// Standalone (`cd backends/android_gamepad && zig build test`): the host test
 /// runs the pure mapping/quirk/state unit tests in `android_gamepad_state.zig`
 /// (no JNI, no NDK).
